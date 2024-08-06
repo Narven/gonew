@@ -6,10 +6,20 @@ tasks:
   default:
     cmds:
       - task --list-all
+
+  check-release:
+    cmds:
+      - goreleaser check
+
   release-local:
+    desc: Release locally, skiping publishing and validation
+    deps: [check-release]
     cmds:
       - goreleaser release --clean --skip=publish --skip=validate
 
   release:
+    desc: Release to production
+    deps: [check-release]
     cmds:
+      - goreleaser check
       - goreleaser release --clean

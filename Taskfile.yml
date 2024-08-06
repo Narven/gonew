@@ -1,0 +1,15 @@
+version: "3"
+
+dotenv: [".env"]
+
+tasks:
+  default:
+    cmds:
+      - task --list-all
+  release-local:
+    cmds:
+      - goreleaser release --clean --skip=publish --skip=validate
+
+  release:
+    cmds:
+      - GITHUB_TOKEN=xxx goreleaser release --clean

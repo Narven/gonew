@@ -4,8 +4,9 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
+	"log"
 	"os"
+	"os/exec"
 
 	"github.com/spf13/cobra"
 )
@@ -18,7 +19,19 @@ var rootCmd = &cobra.Command{
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(args[0])
+		if len(args) != 1 {
+			log.Fatal("mod path is missing.")
+		}
+
+		// TODO create the folder name
+		// TODO run go mod init
+		// TODO run git init
+		// TODO touch README
+		// TODO touch CHANGELOIG
+		// TODO touch main.go
+
+		modPath := args[0]
+		exec.Command("go", "mod", "init", modPath)
 	},
 }
 
@@ -40,5 +53,5 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

@@ -4,9 +4,12 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
+	"path"
+	"text/template"
 
 	"github.com/spf13/cobra"
 )
@@ -20,19 +23,124 @@ var rootCmd = &cobra.Command{
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 1 {
-			log.Fatal("mod path is missing.")
+			log.Fatal("project name is missing")
 		}
 
-		// TODO create the folder name
-		// TODO run go mod init
-		// TODO run git init
-		// TODO touch README
-		// TODO touch CHANGELOIG
-		// TODO touch main.go
+		currentPath, err := os.Getwd()
+		if err != nil {
+			log.Fatal(err)
+		}
 
-		modPath := args[0]
-		exec.Command("go", "mod", "init", modPath)
+		projectName := args[0]
+		fullPath := path.Join(currentPath, projectName)
+
+		// create the folder name
+		if err = createProjectFolder(fullPath); err != nil {
+			log.Fatal(err)
+		}
+
+		// run go mod init
+		if err = goMod(fullPath, projectName); err != nil {
+			log.Fatal(err)
+		}
+
+		// run git init
+		if err = gitInit(fullPath); err != nil {
+			log.Fatal(err)
+		}
+
+		// touch README
+		if err = readme(fullPath, projectName); err != nil {
+			log.Fatal(err)
+		}
+
+		// touch CHANGELOG
+		if err = changelog(fullPath, projectName); err != nil {
+			log.Fatal(err)
+		}
+
+		// touch main.go
+		if err = mainGo(fullPath, projectName); err != nil {
+			log.Fatal(err)
+		}
 	},
+}
+
+func readme(fullPath string, projectName string) error {
+	type Inventory struct {
+		ProjectName string
+	}
+
+	sweaters := Inventory{projectName}
+	tmpl, err := template.New("README").Parse("# {{.ProjectName}}")
+	if err != nil {
+		return err
+	}
+
+	// create a new file
+	pathToReadme := path.Join(fullPath, "README.md")
+	file, _ := os.Create(pathToReadme)
+	defer file.Close()
+
+	return tmpl.Execute(file, sweaters)
+}
+
+func changelog(fullPath string, projectName string) error {
+	type Inventory struct {
+		ProjectName string
+	}
+
+	sweaters := Inventory{projectName}
+	tmpl, err := template.New("README").Parse("# CHANGELOG")
+	if err != nil {
+		return err
+	}
+
+	// create a new file
+	pathToReadme := path.Join(fullPath, "CHANGELOG.md")
+	file, _ := os.Create(pathToReadme)
+	defer file.Close()
+
+	return tmpl.Execute(file, sweaters)
+}
+
+func mainGo(fullPath string, projectName string) error {
+	type Inventory struct {
+		ProjectName string
+	}
+
+	sweaters := Inventory{projectName}
+	tmpl, err := template.New("MAINGO").Parse("package main")
+	if err != nil {
+		return err
+	}
+
+	// create a new file
+	pathToReadme := path.Join(fullPath, "main.go")
+	file, _ := os.Create(pathToReadme)
+	defer file.Close()
+
+	return tmpl.Execute(file, sweaters)
+}
+
+func gitInit(fullPath string) error {
+	command := exec.Command("git", "init")
+	command.Dir = fullPath
+	_, err := command.Output()
+	return err
+}
+
+func createProjectFolder(fullPath string) error {
+	return os.Mkdir(fullPath, os.ModePerm)
+}
+
+func goMod(projectFullpath string, projectName string) error {
+	// go mod init github.com/Narven/<projectname>
+	modPath := fmt.Sprintf("github.com/Narven/%s", projectName)
+	command := exec.Command("go", "mod", "init", modPath)
+	command.Dir = projectFullpath
+	_, err := command.Output()
+	return err
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

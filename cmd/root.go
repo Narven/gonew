@@ -1,5 +1,5 @@
 /*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
+Copyright © 2024 Pedro Luz <pedromsluz@gmail.com>
 */
 package cmd
 
@@ -18,9 +18,7 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "gonew",
 	Short: "Generate a simple go project",
-	Long:  `Generate a simple go project`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
+	Long:  `Generate a simple go project: gonew project1`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 1 {
 			log.Fatal("project name is missing")
@@ -135,9 +133,16 @@ func createProjectFolder(fullPath string) error {
 }
 
 func goMod(projectFullpath string, projectName string) error {
-	// go mod init github.com/Narven/<projectname>
-	modPath := fmt.Sprintf("github.com/Narven/%s", projectName)
-	command := exec.Command("go", "mod", "init", modPath)
+	// go mod init github.com/<user>/<projectname>
+	mod := os.Getenv("GONEW_GOMOD")
+
+	if mod != "" {
+		mod = fmt.Sprintf("%s/%s", mod, projectName)
+	} else {
+		mod = projectName
+	}
+
+	command := exec.Command("go", "mod", "init", mod)
 	command.Dir = projectFullpath
 	_, err := command.Output()
 	return err

@@ -15,11 +15,14 @@ tasks:
     desc: Release locally, skiping publishing and validation
     deps: [check-release]
     cmds:
+      - golangci-lint run
+      - goreleaser check
       - goreleaser release --clean --skip=publish --skip=validate
 
   release:
     desc: Release to production
     deps: [check-release]
     cmds:
+      - golangci-lint run
       - goreleaser check
       - goreleaser release --clean

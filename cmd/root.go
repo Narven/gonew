@@ -18,7 +18,8 @@ var rootCmd = &cobra.Command{
 	Long:  `Generate a simple go project: gonew project1`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 1 {
-			log.Fatal("project name is missing")
+			fmt.Println("project name is missing")
+			os.Exit(1)
 		}
 
 		currentPath, err := os.Getwd()
@@ -55,7 +56,7 @@ var rootCmd = &cobra.Command{
 		}
 
 		// touch main.go
-		if err = mainGo(fullPath, projectName); err != nil {
+		if err = mainGo(fullPath); err != nil {
 			log.Fatal(err)
 		}
 	},
@@ -99,13 +100,8 @@ func changelog(fullPath string, projectName string) error {
 	return tmpl.Execute(file, sweaters)
 }
 
-func mainGo(fullPath string, projectName string) error {
-	type Inventory struct {
-		ProjectName string
-	}
-
-	sweaters := Inventory{projectName}
-	tmpl, err := template.New("MAINGO").Parse("package main")
+func mainGo(fullPath string) error {
+	tmpl, err := template.New("MAINGO").Parse("package main\n\nfunc main() {\n\t// your code here\n}\n")
 	if err != nil {
 		return err
 	}
@@ -115,7 +111,7 @@ func mainGo(fullPath string, projectName string) error {
 	file, _ := os.Create(pathToReadme)
 	defer file.Close()
 
-	return tmpl.Execute(file, sweaters)
+	return tmpl.Execute(file, nil)
 }
 
 func gitInit(fullPath string) error {

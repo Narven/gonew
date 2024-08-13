@@ -2,10 +2,21 @@ version: "3"
 
 dotenv: [".env"]
 
+env:
+  VER: v0.2.1
+
+vars:
+  DARWIN_ARM64: https://github.com/Narven/gonew/releases/download/{{.VER}}/gonew_Darwin_arm64.tar.gz
+
 tasks:
   default:
     cmds:
       - task --list-all
+
+  info:
+    silent: true
+    cmds:
+      - echo {{.DARWIN_ARM64}}
 
   check-release:
     cmds:
@@ -15,6 +26,7 @@ tasks:
     desc: Release locally, skiping publishing and validation
     deps: [check-release]
     cmds:
+      - rm -rf ./dist
       - golangci-lint run
       - goreleaser check
       - goreleaser release --clean --skip=publish --skip=validate
@@ -26,3 +38,11 @@ tasks:
       - golangci-lint run
       - goreleaser check
       - goreleaser release --clean
+
+  install:
+    silent: true
+    cmds:
+      - wget -P /tmp --show-progress {{.DARWIN_ARM64}}
+      - mkdir -p /tmp/gonew
+      - tar -xzf /tmp/gonew_Darwin_arm64.tar.gz -C /tmp/gonew
+      - cp /tmp/gonew/gonew /usr/local/bin/gonew

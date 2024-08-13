@@ -68,7 +68,7 @@ func readme(fullPath string, projectName string) error {
 	}
 
 	sweaters := Inventory{projectName}
-	tmpl, err := template.New("README").Parse("# {{.ProjectName}}")
+	tmpl, err := template.New("README").Parse("# {{.ProjectName}}\n\nAdd here some description about your project")
 	if err != nil {
 		return err
 	}
